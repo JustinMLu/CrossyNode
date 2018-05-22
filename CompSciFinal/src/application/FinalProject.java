@@ -2,8 +2,11 @@ package application;
 	
 
 import java.awt.Paint;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Random;
+
+import com.sun.prism.Image;
 
 import javafx.animation.AnimationTimer;
 import javafx.animation.TranslateTransition;
@@ -15,6 +18,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Glow;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -35,21 +39,28 @@ public class FinalProject extends Application {
 	private Pane root;
 	private Rectangle frog;
 	private boolean stopCondition = false;
-	private ArrayList<Rectangle> cars = new ArrayList<Rectangle>();
+	private ArrayList<Rectangle> carsMovingRight = new ArrayList<Rectangle>();
+	private ArrayList<Rectangle> carsMovingLeft = new ArrayList<Rectangle>();
 
 	
 	private Rectangle initCar() {
 		Rectangle car = new Rectangle(max_size * 2, max_size - 1, Color.DARKRED);
-		
-		car.setStroke(Color.RED);
-		car.setTranslateY((int) (Math.random() * (pane_height / max_size - 1)) * max_size); //number of rows - 1 * size of frog
+
+		car.setTranslateY((int) (Math.random() * (pane_height / max_size - 1)) * max_size); //number of rows - last row * height of frog / car
 	
 		root.getChildren().add(car);
 		return car;
 	}
 	
+//	private Rectangle initLog() { 
+//		Rectangle log = new Rectangle(max_size * 4, max_size - 1, Color.SADDLEBROWN);
+//		
+//		root.getChildren().add(log);
+//		return log;
+//	}
 	
-	private Rectangle initFrog(int moveAmount) {
+	
+	private Rectangle initFrog() {
 		Rectangle froggo = new Rectangle(max_size - 3, max_size - 3, Color.DARKOLIVEGREEN);
 		
 		froggo.setStroke(Color.FORESTGREEN);
@@ -64,10 +75,9 @@ public class FinalProject extends Application {
 	}
 	
 	
-	private void spawnCars() {
+	private void spawnCarsMovingRight() {
 		//RANDOMLY SPAWNS CARS
-		for (Rectangle car : cars) {
-			
+		for (Rectangle car : carsMovingRight) {
 			car.setTranslateX(car.getTranslateX() + (Math.random() * 5));
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
@@ -78,14 +88,21 @@ public class FinalProject extends Application {
 			}
 		}
 		
-		if ((int) (Math.random() * 100) < 2 && !stopCondition) {
-			cars.add(initCar());
+		if ((int) (Math.random() * 100) < 3 && !stopCondition) {
+			carsMovingRight.add(initCar());
 		}	
 	}
 	
+	//TODO: Make method to spawn LOGS, change IMAGE, and DELETE CARS MOVING
+	
+	private void spawnLogs() {
+		
+	}
+
+	
 	private Pane generateElements() {
 		root = new Pane();
-		frog = initFrog(20);
+		frog = initFrog();
 		
 		//add the frog to the root node
 		root.getChildren().add(frog);
@@ -94,7 +111,7 @@ public class FinalProject extends Application {
 			
 			@Override
 			public void handle(long now) { //repeatedly initialize and animate cars
-				spawnCars();
+				spawnCarsMovingRight();	
 			}
 		};
 		timer.start();
