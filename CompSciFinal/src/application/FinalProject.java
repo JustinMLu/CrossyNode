@@ -50,8 +50,8 @@ public class FinalProject extends Application {
 	private Rectangle initCar(double xCoordinate) {
 		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
 
-		car.setTranslateY(((int) (Math.random() * (pane_height / max_size - 1))) * max_size); //number of rows - last row * height of frog / car
-		car.setTranslateX(xCoordinate);
+		car.setY(((int) (Math.random() * (pane_height / max_size - 1))) * max_size); //number of rows - last row * height of frog / car
+		car.setX(xCoordinate);
 		
 		root.getChildren().add(car);
 		return car;
@@ -65,10 +65,6 @@ public class FinalProject extends Application {
 		froggo.setY((pane_height - max_size) + 1);
 		froggo.setX((pane_width / 2) - max_size);
 		
-		//SETS THE DEFAULT 0,0 POINT TO WHERE THE FROG SPAWNS
-		froggo.setTranslateX(0);
-		froggo.setTranslateY(0);
-		
 		return froggo;
 	}
 	
@@ -76,15 +72,21 @@ public class FinalProject extends Application {
 	private void spawnCarsMovingRight() {
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingRight) {
-			car.setTranslateX(car.getTranslateX() + (Math.random() * 5));
+			car.setX(car.getX() + (Math.random() * 5));
 			car.setOpacity(0.6);
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				frog.setTranslateX(car.getTranslateX() - 175);
+				frog.setX(car.getX() + 50);
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
 			}
+			
+			if (car.getX() >= pane_width) {
+				car.setOpacity(0);
+				car.setHeight(0);
+				car.setWidth(0);
+			}	
 		}
 		
 		if ((int) (Math.random() * 100) < 2 && !stopCondition) {
@@ -95,15 +97,21 @@ public class FinalProject extends Application {
 	private void spawnCarsMovingLeft() {
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingLeft) {
-			car.setTranslateX(car.getTranslateX() - (Math.random() * 5));
+			car.setX(car.getX() - (Math.random() * 5));
 			car.setOpacity(0.6);
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				frog.setTranslateX(car.getTranslateX() - 250);
+				frog.setX(car.getX() - 25);
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
 			}
+			
+			if (car.getX() <= 0) {
+				car.setOpacity(0);
+				car.setHeight(0);
+				car.setWidth(0);
+			}	
 		}
 		
 		if ((int) (Math.random() * 100) < 2 && !stopCondition) {
@@ -145,27 +153,30 @@ public class FinalProject extends Application {
 			
 			switch (event.getCode()) {
 			case UP:
-				if (!stopCondition && frog.getTranslateY() > -475)
-					frogUp = frog.getTranslateY() - max_size;
-					frog.setTranslateY(frogUp); // moves the frog 1 frog size up/down/left/right
-					break;
+				if (!stopCondition) {
+					frogUp = frog.getY() - max_size;
+					frog.setY(frogUp); // moves the frog 1 frog size up/down/left/right
+				}
+				break;
 				
 			case DOWN:
-				if (!stopCondition && frog.getTranslateY() < 0)
-					frogDown = frog.getTranslateY() + max_size;
-					frog.setTranslateY(frogDown);
-					break;
+				if (!stopCondition) {
+					frogDown = frog.getY() + max_size;
+					frog.setY(frogDown);
+				}
+				break;
 				
 			case LEFT:
-				if (!stopCondition && frog.getTranslateX() > (-pane_width / 2 + max_size)) {
-					frog.setTranslateX(frog.getTranslateX() - max_size);
-					break;
+				if (!stopCondition) {
+					frog.setX(frog.getX() - max_size);
 				}
+				break;
 				
 			case RIGHT:
-				if (!stopCondition && frog.getTranslateX() < pane_width / 2)
-					frog.setTranslateX(frog.getTranslateX() + max_size);
-					break;
+				if (!stopCondition) {
+					frog.setX(frog.getTranslateX() + max_size);
+				}
+				break;
 				
 			default:
 				break;
