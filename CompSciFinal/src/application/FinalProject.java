@@ -18,7 +18,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Circle;
 import javafx.scene.control.Button;
 import javafx.scene.effect.Glow;
-import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
@@ -48,6 +47,8 @@ public class FinalProject extends Application {
 	private boolean logCollision = false;
 	private double frogLeft = 0, frogRight = 0;
 	private boolean frogLeftTrue = false, frogRightTrue = false;
+	private boolean logCollide = false;
+	private double frogXPos;
 	
 	
 	private Rectangle initCar() {
@@ -66,7 +67,7 @@ public class FinalProject extends Application {
 		
 		root.getChildren().add(log);
 		return log;
-	}
+	}	
 	
 	
 	private Rectangle initFrog() {
@@ -76,10 +77,6 @@ public class FinalProject extends Application {
 		froggo.setY((pane_height - max_size) + 1);
 		froggo.setX((pane_width / 2) - max_size);
 		
-		//SETS THE DEFAULT 0,0 POINT TO WHERE THE FROG SPAWNS
-		froggo.setTranslateX(0);
-		froggo.setTranslateY(0);
-		
 		return froggo;
 	}
 	
@@ -87,11 +84,11 @@ public class FinalProject extends Application {
 	private void spawnCarsMovingRight() {
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingRight) {
-			car.setTranslateX(car.getTranslateX() + (Math.random() * 5));
+			car.setX(car.getX() + (Math.random() * 5));
 			car.setOpacity(0.6);
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				frog.setTranslateX(car.getTranslateX() - 175);
+				frog.setTranslateX(car.getX() - 175);
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
@@ -109,42 +106,31 @@ public class FinalProject extends Application {
 		
 		//RANDOMLY SPAWNS LOGS
 		for (Rectangle log : logsMovingRight) {
-			log.setTranslateX(log.getTranslateX() + (Math.random() * 3));
+			log.setX(log.getX() + (Math.random() * 3));
 			log.setOpacity(0.6);
-			
-//			if (!log.getBoundsInParent().intersects(frog.getBoundsInParent()) && frog.getTranslateY() != 0) {
-//				stopCondition = true;
-//				frog.setFill(Color.DARKRED);
-//				frog.setStroke(Color.DARKRED);	
-//			}
+			frogXPos = frog.getX();
+
+			//COLLISIONS
 			if (log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				System.out.println("INTERSECTS WITH LOG");
+				logCollide = true;
+				frog.setX(log.getX());
 				
-				if (frogLeftTrue) {
-					frog.setTranslateX((log.getTranslateX() - 20) - frogLeft);
-				}
-				else if (frogRightTrue) {
-					frog.setTranslateX((log.getTranslateX() - 20) + frogRight);
-				}
+				System.out.println("FrogLeft: " + frogLeft);
+				System.out.println("GetX and Y: " + frog.getX() + " " + frog.getY());
 			}
+			
+			//DESPAWNS LOG
+			if (log.getX() >= pane_width) {
+				log.setOpacity(0);
+				log.setHeight(0);
+				log.setWidth(0);
+			}		
 		}
 		
-		if ((int) (Math.random() * 100) < 5 && !stopCondition) {
+		//ADDS LOG TO ARRAYLISTs
+		if ((int) (Math.random() * 100) < 2 && !stopCondition) {
 			logsMovingRight.add(initLog());
 		}	
-	}
-	
-	private void killAllCars() {
-		for (int i = 0; i < carsMovingRight.size(); i++) {
-			carsMovingRight.remove(i);
-			carsMovingRight.get(i).setOpacity(0);
-		}
-	}
-	
-	private void killAllLogs() {
-		for (Rectangle log : logsMovingRight) {
-			logsMovingRight.remove(log);
-		}
 	}
 	
 	private Pane generateElements() {
@@ -158,7 +144,7 @@ public class FinalProject extends Application {
 			
 			@Override
 			public void handle(long now) { //repeatedly initialize and animate cars
-				spawnLogsMovingRight();
+				spawnCarsMovingRight();
 			}
 		};
 		timer.start();
@@ -176,32 +162,33 @@ public class FinalProject extends Application {
 		primaryStage.getScene().setOnKeyPressed(event -> {
 			
 			switch (event.getCode()) {
+			
 			case UP:
-				if (!stopCondition && frog.getTranslateY() > -475)
-					frog.setTranslateY(frog.getTranslateY() - max_size); // moves the frog 1 frog size up/down/left/right
-					break;
+				if (!stopCondition)
+					frog.setY(frog.getY() - max_size); // moves the frog 1 frog size up/down/left/right
+				break;
 				
 			case DOWN:
-				if (!stopCondition && frog.getTranslateY() < 0)
-					frog.setTranslateY(frog.getTranslateY() + max_size);
-					break;
+				if (!stopCondition)
+					frog.setY(frog.getY() + max_size);
+				break;
 				
 			case LEFT:
-				if (!stopCondition && frog.getTranslateX() > (-pane_width / 2 + max_size)) {
-					frogLeftTrue = true;
-					frogRightTrue = false;
-					frogLeft = frog.getTranslateX() - max_size;
-					frog.setTranslateX(frogLeft);
+				if (!stopCondition) {
+					if (logCollide) {
+						frogLeft = frog.getX() - max_size; //MAKES THE OFFSET AMOUNT A GLOBAL VARIABLE TO BE USED BY THE LOG
+						frog.setX(frogLeft);
+					}
+					else {
+						frog.setX(frog.getX() - max_size);
+						frogLeft = 0;
+					}
 					break;
 				}
 				
 			case RIGHT:
-				if (!stopCondition && frog.getTranslateX() < pane_width / 2)
-					frogRightTrue = true;
-					frogLeftTrue = false;
-					frogRight = frog.getTranslateX() + max_size;
-					frog.setTranslateX(frogRight);
-					break;
+				frog.setTranslateX(frog.getTranslateX() + max_size);	
+			break;
 				
 			default:
 				break;
