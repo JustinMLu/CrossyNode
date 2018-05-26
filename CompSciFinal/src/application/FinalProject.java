@@ -2,7 +2,8 @@ package application;
 	
 
 import java.awt.Paint;
-import java.io.FileInputStream;
+import java.io.FileInputStream; 
+import java.io.FileNotFoundException; 
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -32,69 +33,34 @@ import javafx.scene.text.Text;
 public class FinalProject extends Application {
 	
 	public static final double pane_width = 500;
-	public static final double pane_height = 500;
+	public static final double pane_height = 750; //default 500
 	public static final double max_size = 25; //maximum size for every visual node 
 
 	private AnimationTimer timer;
 	private Pane root;
-	private Rectangle frog;
+	private Rectangle frog, rect;
+	
 	private boolean stopCondition = false;
 	private ArrayList<Rectangle> carsMovingRight = new ArrayList<Rectangle>();
 	private ArrayList<Rectangle> carsMovingLeft = new ArrayList<Rectangle>();
 	
 	private ArrayList<Rectangle> logsMovingRight = new ArrayList<Rectangle>();
+	private ArrayList<Rectangle> logsMovingLeft = new ArrayList<Rectangle>();
 
 	private double frogLeft = 0;
 	private boolean logCollide = false;
 	
 	//DIFFICULTY FACTORS
 	private int carSpeed = 5; //default speed was 5
-	private int carAmount = 3; //default random add quantity was 3
- 	
-	private Rectangle initLog() { 
-		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
-		
-		log.setY(((int) (Math.random() * (pane_height / max_size - 1))) * max_size);
-		
-		root.getChildren().add(log);
-		return log;
-	}	
+	private int carAmount = 3; //default random add quantity was 3	
+	private int logAmount = 1;
 	
+	//COUNTERS
+	private int leftCarCounter = 0;
+	private int rightCarCounter = 0;
 	
-	private Rectangle initRightMovingCar() {
-		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
-
-		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
-		
-		while (row % 2 != 0) {
-			System.out.println("Row not even: " + row);
-			row = ((int) (Math.random() * (pane_height / max_size - 1)));
-		}
-		
-		car.setY(row * max_size); //number of rows minus first (19) * height of frog / car (25) 
-		car.setX(0);
-		
-		root.getChildren().add(car);
-		return car;
-	}
-	
-	private Rectangle initLeftMovingCar() {
-		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
-
-		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
-		
-		while (row % 2 == 0) {
-			System.out.println("Row not odd: " + row);
-			row = ((int) (Math.random() * (pane_height / max_size - 1)));
-		}
-		
-		car.setY(row * max_size); //number of rows - last row * height of frog / car
-		car.setX(pane_width);
-		
-		root.getChildren().add(car);
-		return car;
-	}
-	
+	//SCORE
+	private int score;
 	
 	private Rectangle initFrog() {
 		Rectangle froggo = new Rectangle(max_size - 2, max_size - 2, Color.DARKOLIVEGREEN);
@@ -106,6 +72,73 @@ public class FinalProject extends Application {
 		return froggo;
 	}
 	
+//	private Rectangle initRightMovingLog() { 
+//		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
+//		
+//		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+//		
+//		while (row % 2 == 0) {
+//			System.out.println("Row not even: " + row);
+//			row = ((int) (Math.random() * (pane_height / max_size - 1)));
+//		}
+//		
+//		log.setY(row * max_size);
+//		log.setX(0);
+//		
+//		root.getChildren().add(log);
+//		return log;
+//	}
+//	
+//	private Rectangle initLeftMovingLog() { 
+//		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
+//		
+//		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+//		
+//		while (row % 2 != 0) {
+//			System.out.println("Row not even: " + row);
+//			row = ((int) (Math.random() * (pane_height / max_size - 1)));
+//		}
+//		
+//		log.setY(row * max_size);
+//		log.setX(pane_width);
+//		
+//		root.getChildren().add(log);
+//		return log;
+//	}
+	
+	private Rectangle initRightMovingCar() {
+		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
+
+		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		
+		while (row % 2 != 0) {
+			row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		}
+		
+		car.setY(row * max_size); //number of rows minus first (19) * height of frog / car (25) 
+		car.setX(0);
+		
+		root.getChildren().add(car);
+		return car;
+	}
+	
+	
+	private Rectangle initLeftMovingCar() {
+		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
+
+		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		
+		while (row % 2 == 0) {
+			row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		}
+		
+		car.setY(row * max_size); //number of rows - last row * height of frog / car
+		car.setX(pane_width);
+		
+		root.getChildren().add(car);
+		return car;
+	}
+	
 	
 	private void spawnCarsMovingRight() {
 		//RANDOMLY SPAWNS CARS
@@ -114,22 +147,19 @@ public class FinalProject extends Application {
 			car.setOpacity(0.6);
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				frog.setX(car.getX() + 50);
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
 			}
 			
 			if (car.getX() >= pane_width) {
-				car.setOpacity(0);
-				car.setHeight(0);
-				car.setWidth(0);
+				car.setX(0);
 			}	
 		}
 		
 		if ((int) (Math.random() * 100) < carAmount && !stopCondition) {
 			carsMovingRight.add(initRightMovingCar());
-		}	
+		}
 	}
 	
 	private void spawnCarsMovingLeft() {
@@ -139,16 +169,13 @@ public class FinalProject extends Application {
 			car.setOpacity(0.6);
 			
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				frog.setX(car.getX() - 25);
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
 			}
 			
 			if (car.getX() <= 0) {
-				car.setOpacity(0);
-				car.setHeight(0);
-				car.setWidth(0);
+				car.setX(pane_width);
 			}	
 		}
 		
@@ -159,37 +186,62 @@ public class FinalProject extends Application {
 	
 	//TODO: Make method to change IMAGE, and DELETE CARS MOVING
 	
-	private void spawnLogsMovingRight() {
+//	private void spawnLogsMovingRight() {
+//		
+//		//RANDOMLY SPAWNS LOGS
+//		for (Rectangle log : logsMovingRight) {
+//			log.setX(log.getX() + (Math.random() * 3));
+//			log.setOpacity(0.6);
+//
+//			//COLLISIONS
+//			if (log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
+//				logCollide = true;
+//				frog.setX(log.getX());
+//				
+//				System.out.println("FrogLeft: " + frogLeft);
+//				System.out.println("GetX and Y: " + frog.getX() + " " + frog.getY());
+//			}
+//			else if (!log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
+//				logCollide = false;
+//			}
+//			
+//			//DESPAWNS LOG
+//			if (log.getX() >= pane_width) {
+//				log.setOpacity(0);
+//				log.setHeight(0);
+//				log.setWidth(0);
+//			}		
+//		}
+//		
+//		//TODO: ADD METHOD FOR LEFT MOVING LOGS
+//		
+//		//ADDS LOG TO ARRAYLISTs
+//		if ((int) (Math.random() * 100) < logAmount && !stopCondition) {
+//			logsMovingRight.add(initRightMovingLog());
+//		}	
+//	}
+	
+	private void generateFinish() {
+		rect = new Rectangle(pane_width, max_size, Color.TRANSPARENT);
+		rect.setY(0);
+		rect.setX(0);
 		
-		//RANDOMLY SPAWNS LOGS
-		for (Rectangle log : logsMovingRight) {
-			log.setX(log.getX() + (Math.random() * 3));
-			log.setOpacity(0.6);
-
-			//COLLISIONS
-			if (log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				logCollide = true;
-				frog.setX(log.getX());
-				
-				System.out.println("FrogLeft: " + frogLeft);
-				System.out.println("GetX and Y: " + frog.getX() + " " + frog.getY());
-			}
-			else if (!log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-				logCollide = false;
-			}
+		root.getChildren().add(rect);
+	}
+	
+	private void incrementCondition() {
+		if (frog.getBoundsInParent().intersects(rect.getBoundsInParent())) {
+			frog.setY((pane_height - max_size) + 1);
+			frog.setX((pane_width / 2) - max_size);
 			
-			//DESPAWNS LOG
-			if (log.getX() >= pane_width) {
-				log.setOpacity(0);
-				log.setHeight(0);
-				log.setWidth(0);
-			}		
+			score += 5;
+			carSpeed += 1;
+			carAmount += 2;
+			
+			if (carAmount >= 6) {
+				carAmount = 6;
+			}
 		}
-		
-		//ADDS LOG TO ARRAYLISTs
-		if ((int) (Math.random() * 100) < 2 && !stopCondition) {
-			logsMovingRight.add(initLog());
-		}	
 	}
 	
 	private Pane generateElements() {
@@ -203,8 +255,10 @@ public class FinalProject extends Application {
 			
 			@Override
 			public void handle(long now) { //repeatedly initialize and animate cars
-				spawnCarsMovingRight();
 				spawnCarsMovingLeft();
+				spawnCarsMovingRight();
+				generateFinish();
+				incrementCondition();
 			}
 		};
 		timer.start();
