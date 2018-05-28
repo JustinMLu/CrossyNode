@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import com.sun.prism.Image;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.TranslateTransition;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -40,7 +39,9 @@ public class FinalProject extends Application {
 	private Pane root;
 	private Rectangle frog, rect;
 	
+	private boolean oneTime = true;
 	private boolean stopCondition = false;
+	
 	private ArrayList<Rectangle> carsMovingRight = new ArrayList<Rectangle>();
 	private ArrayList<Rectangle> carsMovingLeft = new ArrayList<Rectangle>();
 	
@@ -60,6 +61,9 @@ public class FinalProject extends Application {
 	private int rightCarCounter = 0;
 	private int leftLimit = 6;
 	private int rightLimit = 6;
+	
+	//SCORE
+	private int score = 0;
 
 	//Creates frog rectangle object
 	private Rectangle initFrog() {
@@ -72,6 +76,23 @@ public class FinalProject extends Application {
 		return froggo; //Returns frog node so it can be put into pane 
 	}
 	
+	private void initLose() {	
+		if (stopCondition == true && oneTime == true) {
+			Text lose = new Text();
+		
+			lose.setX((pane_width / 2) - 200); //Sets X location to middle;
+			lose.setY(pane_height / 2); //Sets Y location to middle
+			
+			lose.setText("Froggo was hit by a car!");
+			lose.setFont(Font.font("consolas", FontWeight.BOLD, FontPosture.ITALIC, 30));
+			
+			lose.setFill(Color.DARKRED);
+			lose.setStroke(Color.DARKRED);
+			
+			root.getChildren().add(lose); //adds text node to root container pane node
+			oneTime = false;
+		}
+	}
 	
 	//Creates right-moving car node that spawns EVERY EVEN ROW
 	private Rectangle initRightMovingCar() {
@@ -247,6 +268,8 @@ public class FinalProject extends Application {
 				
 				generateFinish();
 				incrementCondition();
+				
+				initLose();
 			}
 		};
 		timer.start();
