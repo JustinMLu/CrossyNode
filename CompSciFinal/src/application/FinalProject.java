@@ -51,7 +51,7 @@ public class FinalProject extends Application {
 	private boolean logCollide = false;
 	
 	//DIFFICULTY FACTORS
-	private int carSpeed = 5; //default speed was 5
+	private int carSpeed = 4; //default speed was 5
 	private int carAmount = 3; //default random add quantity was 3	
 	private int logAmount = 1;
 	
@@ -72,40 +72,6 @@ public class FinalProject extends Application {
 		return froggo; //Returns frog node so it can be put into pane 
 	}
 	
-	//FAILED FROGGER LOG CODE
-//	private Rectangle initRightMovingLog() { 
-//		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
-//		
-//		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
-//		
-//		while (row % 2 == 0) {
-//			System.out.println("Row not even: " + row);
-//			row = ((int) (Math.random() * (pane_height / max_size - 1)));
-//		}
-//		
-//		log.setY(row * max_size);
-//		log.setX(0);
-//		
-//		root.getChildren().add(log);
-//		return log;
-//	}
-//	
-//	private Rectangle initLeftMovingLog() { 
-//		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
-//		
-//		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
-//		
-//		while (row % 2 != 0) {
-//			System.out.println("Row not even: " + row);
-//			row = ((int) (Math.random() * (pane_height / max_size - 1)));
-//		}
-//		
-//		log.setY(row * max_size);
-//		log.setX(pane_width);
-//		
-//		root.getChildren().add(log);
-//		return log;
-//	}
 	
 	//Creates right-moving car node that spawns EVERY EVEN ROW
 	private Rectangle initRightMovingCar() {
@@ -197,6 +163,10 @@ public class FinalProject extends Application {
 		}	
 	}
 	
+	/* Iterates through every single car, starting with cars 1 and 2, and sees if they intersect.
+	
+	If they do, remove one of the intersecting cars from the ArrayList and turn them invisible*/
+	
 	private void leftCollisionCheck() {
 		for (int i = 0; i < carsMovingLeft.size() - 1; i++) {
 			for (int b = i + 1; b < carsMovingLeft.size(); b++) {
@@ -219,42 +189,6 @@ public class FinalProject extends Application {
 		}
 	}
 	
-	//TODO: Make method to change IMAGE, and DELETE CARS MOVING
-	
-//	private void spawnLogsMovingRight() {
-//		
-//		//RANDOMLY SPAWNS LOGS
-//		for (Rectangle log : logsMovingRight) {
-//			log.setX(log.getX() + (Math.random() * 3));
-//			log.setOpacity(0.6);
-//
-//			//COLLISIONS
-//			if (log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-//				logCollide = true;
-//				frog.setX(log.getX());
-//				
-//				System.out.println("FrogLeft: " + frogLeft);
-//				System.out.println("GetX and Y: " + frog.getX() + " " + frog.getY());
-//			}
-//			else if (!log.getBoundsInParent().intersects(frog.getBoundsInParent())) {
-//				logCollide = false;
-//			}
-//			
-//			//DESPAWNS LOG
-//			if (log.getX() >= pane_width) {
-//				log.setOpacity(0);
-//				log.setHeight(0);
-//				log.setWidth(0);
-//			}		
-//		}
-//		
-//		//TODO: ADD METHOD FOR LEFT MOVING LOGS
-//		
-//		//ADDS LOG TO ARRAYLISTs
-//		if ((int) (Math.random() * 100) < logAmount && !stopCondition) {
-//			logsMovingRight.add(initRightMovingLog());
-//		}	
-//	}
 	
 	//Generates a rectangle that will be used as a finish line, and adding it to the root node
 	private void generateFinish() {
@@ -276,9 +210,9 @@ public class FinalProject extends Application {
 			rightLimit++;
 			
 			//Increases the car limits so that more cars spawn
-			if (leftLimit < 10 || rightLimit < 10) {
-				leftLimit = 10;
-				rightLimit = 10;
+			if (leftLimit < 9 || rightLimit < 9) {
+				leftLimit = 9;
+				rightLimit = 9;
 			}
 			
 			//Limit so the game does not become impossible
