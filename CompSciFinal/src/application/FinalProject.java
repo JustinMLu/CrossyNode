@@ -58,20 +58,21 @@ public class FinalProject extends Application {
 	//COUNTERS & LIMITS
 	private int leftCarCounter = 0;
 	private int rightCarCounter = 0;
-	private int leftLimit = 8;
-	private int rightLimit = 8;
+	private int leftLimit = 6;
+	private int rightLimit = 6;
 
-	
+	//Creates frog rectangle object
 	private Rectangle initFrog() {
 		Rectangle froggo = new Rectangle(max_size - 2, max_size - 2, Color.DARKOLIVEGREEN);
 		
-		froggo.setStroke(Color.FORESTGREEN);
-		froggo.setY((pane_height - max_size) + 1);
-		froggo.setX((pane_width / 2) - max_size);
+		froggo.setStroke(Color.FORESTGREEN); //Sets outer color
+		froggo.setY((pane_height - max_size) + 1); //Sets Y location to bottom of screen
+		froggo.setX((pane_width / 2) - max_size); //Sets X location to middle
 		
-		return froggo;
+		return froggo; //Returns frog node so it can be put into pane 
 	}
 	
+	//FAILED FROGGER LOG CODE
 //	private Rectangle initRightMovingLog() { 
 //		Rectangle log = new Rectangle(max_size * 4, max_size, Color.SADDLEBROWN);
 //		
@@ -106,65 +107,72 @@ public class FinalProject extends Application {
 //		return log;
 //	}
 	
+	//Creates right-moving car node that spawns EVERY EVEN ROW
 	private Rectangle initRightMovingCar() {
-		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
+		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED); //Sets dimensions of the car
 
-		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		double row = ((int) (Math.random() * (pane_height / max_size - 1))); //Randomly generates the y pos based on the number of rows there are
 		
-		while (row % 2 != 0) {
+		while (row % 2 != 0) { //If the row number is odd, regenerate the row until it is even.
 			row = ((int) (Math.random() * (pane_height / max_size - 1)));
 		}
 		
 		car.setY(row * max_size); //number of rows minus first (19) * height of frog / car (25) 
-		car.setX(-50);
+		car.setX(-50); //Spawns offscreen so it can transition on-screen
 		
-		root.getChildren().add(car);
+		//Add to root node automatically and return object so it can bge used in ArrayList for easier iteration
+		root.getChildren().add(car); 
 		return car;
 	}
 	
-	
+	//Creates left-moving car that spawns EVERY ODD ROW
 	private Rectangle initLeftMovingCar() {
-		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED);
+		Rectangle car = new Rectangle(max_size * 2, max_size, Color.DARKRED); //Sets dimensions
 
-		double row = ((int) (Math.random() * (pane_height / max_size - 1)));
+		double row = ((int) (Math.random() * (pane_height / max_size - 1))); //Randomly generates y pos row
 		
-		while (row % 2 == 0) {
+		while (row % 2 == 0) { //If y pos row is even, regenerate until it is odd
 			row = ((int) (Math.random() * (pane_height / max_size - 1)));
 		}
 		
 		car.setY(row * max_size); //number of rows - last row * height of frog / car
 		car.setX(pane_width);
 		
-		root.getChildren().add(car);
+		//Add to root node and return object so it can be used in ArrayList
+		root.getChildren().add(car); 
 		return car;
 	}
 	
+	//Iterates through all right moving cars and assigns them properties
 	private void spawnCarsMovingRight() {
 		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingRight) {
-			car.setX(car.getX() + (Math.random() * carSpeed));
+			car.setX(car.getX() + (Math.random() * carSpeed)); //Randomly sets the car's speed
 			car.setOpacity(0.6);
 			
+			//If the frog's boundaries intersect the car's boundaries, stop the game and turn the frog bloody red
 			if (car.getBoundsInParent().intersects(frog.getBoundsInParent())) {
 				stopCondition = true;
 				frog.setFill(Color.DARKRED);
 				frog.setStroke(Color.DARKRED);
 			}
 			
+			//If the car reaches the end of the screen, reset the car back to its initial pos and re-assign speed randomly
 			if (car.getX() >= pane_width) {
 				car.setX(-50);
 				car.setX(car.getX() + (Math.random() * carSpeed)); //REASSIGNS SPEED OF CAR RANDOMLY
 			}	
 		}
 		
+		//Makes sure cars are added at random intervals while stop condition is false, and the limit of cars has not been reached.
 		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit) {
 			carsMovingRight.add(initRightMovingCar());
-			rightCarCounter++;
+			rightCarCounter++; //Add to the limit counter to account for extra added car
 		}
 	}
 	
-	private void spawnCarsMovingLeft() {
+	private void spawnCarsMovingLeft() { //Literally the exact same thing but for cars moving left
 		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingLeft) {
@@ -248,22 +256,43 @@ public class FinalProject extends Application {
 //		}	
 //	}
 	
+	//Generates a rectangle that will be used as a finish line, and adding it to the root node
 	private void generateFinish() {
-		rect = new Rectangle(pane_width, max_size, Color.TRANSPARENT);
+		rect = new Rectangle(pane_width, max_size, Color.DARKSEAGREEN);
 		rect.setY(0);
 		rect.setX(0);
 		
 		root.getChildren().add(rect);
 	}
 	
+	//If the frog intersects with the finish line rectangle, reset the frog and SPEED UP THE CARS
 	private void incrementCondition() {
 		if (frog.getBoundsInParent().intersects(rect.getBoundsInParent())) {
 			frog.setY((pane_height - max_size) + 1);
 			frog.setX((pane_width / 2) - max_size);
 
-			carSpeed += 2;
+			carSpeed += 1;
+			leftLimit++;
+			rightLimit++;
+			
+			//Increases the car limits so that more cars spawn
+			if (leftLimit < 10 || rightLimit < 10) {
+				leftLimit = 10;
+				rightLimit = 10;
+			}
+			
+			//Limit so the game does not become impossible
+			if (carSpeed < 6) {
+				carSpeed = 6;
+			}
 		}
 	}
+	
+	/* Method that creates root container pane and frog, as well as adding all spawn and iterating methods in an infinite AnimationTimer
+	
+	Originally these things were in the start menu, however in order to modular-ize the code (and possibly call later) I have moved them.
+	
+	Returns the pane after adding nodes into it */
 	
 	private Pane generateElements() {
 		root = new Pane();
@@ -278,8 +307,10 @@ public class FinalProject extends Application {
 			public void handle(long now) { //repeatedly initialize and animate cars
 				spawnCarsMovingLeft();
 				spawnCarsMovingRight();
+				
 				leftCollisionCheck();
 				rightCollisionCheck();
+				
 				generateFinish();
 				incrementCondition();
 			}
@@ -301,32 +332,23 @@ public class FinalProject extends Application {
 			switch (event.getCode()) {
 			
 			case UP:
-				if (!stopCondition)
+				if (!stopCondition && frog.getY() > 1)
 					frog.setY(frog.getY() - max_size); // moves the frog 1 frog size up/down/left/right
 				break;
 				
 			case DOWN:
-				if (!stopCondition)
+				if (!stopCondition && frog.getY() < 726)
 					frog.setY(frog.getY() + max_size);
 				break;
 				
 			case LEFT:
-				if (!stopCondition) {
-					if (logCollide) {
-						frogLeft = frog.getX() - (max_size + 25); //MAKES THE OFFSET AMOUNT A GLOBAL VARIABLE TO BE USED BY THE LOG
-						frog.setX(frogLeft);
-					}
-					
-					else {
-						frog.setX(frog.getX() - max_size);
-						frogLeft = 0;
-					}
-				}
+				if (!stopCondition && frog.getX() > 0)
+					frog.setX(frog.getX() - max_size);
 				break;
 				
 			case RIGHT:
-				if (!stopCondition)
-					frog.setTranslateX(frog.getTranslateX() + max_size);	
+				if (!stopCondition && frog.getX() < 475)
+					frog.setX(frog.getX() + max_size);	
 				break;
 				
 			default:
