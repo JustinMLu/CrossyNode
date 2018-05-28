@@ -142,7 +142,6 @@ public class FinalProject extends Application {
 		return car;
 	}
 	
-	
 	private void spawnCarsMovingRight() {
 		
 		if (rightCarCounter < rightLimit) {
