@@ -55,12 +55,12 @@ public class FinalProject extends Application {
 	private int carAmount = 3; //default random add quantity was 3	
 	private int logAmount = 1;
 	
-	//COUNTERS
+	//COUNTERS & LIMITS
 	private int leftCarCounter = 0;
 	private int rightCarCounter = 0;
-	
-	//SCORE
-	private int score;
+	private int leftLimit = 8;
+	private int rightLimit = 8;
+
 	
 	private Rectangle initFrog() {
 		Rectangle froggo = new Rectangle(max_size - 2, max_size - 2, Color.DARKOLIVEGREEN);
@@ -154,11 +154,14 @@ public class FinalProject extends Application {
 			
 			if (car.getX() >= pane_width) {
 				car.setX(0);
+				car.setX(car.getX() + (Math.random() * carSpeed)); //SETS A NEW RANDOM SPEED
 			}	
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition) {
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit) {
 			carsMovingRight.add(initRightMovingCar());
+			rightCarCounter++;
+			System.out.println("RightCar ArrayList: " + carsMovingRight.size());
 		}
 	}
 	
@@ -176,11 +179,14 @@ public class FinalProject extends Application {
 			
 			if (car.getX() <= 0) {
 				car.setX(pane_width);
+				car.setX(car.getX() - (Math.random() * carSpeed)); //SETS A NEW RANDOM SPEED
 			}	
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition) {
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && leftCarCounter < leftLimit) {
 			carsMovingLeft.add(initLeftMovingCar());
+			leftCarCounter++;
+			System.out.println("LeftCar ArrayList: " + carsMovingLeft.size());
 		}	
 	}
 	
@@ -233,14 +239,8 @@ public class FinalProject extends Application {
 		if (frog.getBoundsInParent().intersects(rect.getBoundsInParent())) {
 			frog.setY((pane_height - max_size) + 1);
 			frog.setX((pane_width / 2) - max_size);
-			
-			score += 5;
-			carSpeed += 1;
-			carAmount += 2;
-			
-			if (carAmount >= 6) {
-				carAmount = 6;
-			}
+
+			carSpeed += 2;
 		}
 	}
 	
