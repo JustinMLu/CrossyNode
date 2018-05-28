@@ -60,9 +60,6 @@ public class FinalProject extends Application {
 	private int rightCarCounter = 0;
 	private int leftLimit = 8;
 	private int rightLimit = 8;
-	
-	private int rightSpawnCounter = 0, leftSpawnCounter = 0;
-	private int rightSpawnDelay = 60, leftSpawnDelay = 60;
 
 	
 	private Rectangle initFrog() {
@@ -119,7 +116,7 @@ public class FinalProject extends Application {
 		}
 		
 		car.setY(row * max_size); //number of rows minus first (19) * height of frog / car (25) 
-		car.setX(0);
+		car.setX(-50);
 		
 		root.getChildren().add(car);
 		return car;
@@ -144,10 +141,6 @@ public class FinalProject extends Application {
 	
 	private void spawnCarsMovingRight() {
 		
-		if (rightCarCounter < rightLimit) {
-			rightSpawnCounter++;
-		}
-		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingRight) {
 			car.setX(car.getX() + (Math.random() * carSpeed));
@@ -160,23 +153,18 @@ public class FinalProject extends Application {
 			}
 			
 			if (car.getX() >= pane_width) {
-				car.setX(0);
-				car.setX(car.getX() + (Math.random() * carSpeed)); //SETS A NEW RANDOM SPEED
+				car.setX(-50);
+				car.setX(car.getX() + (Math.random() * carSpeed)); //REASSIGNS SPEED OF CAR RANDOMLY
 			}	
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit && rightSpawnCounter > rightSpawnDelay) {
-			rightSpawnCounter = 0;
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit) {
 			carsMovingRight.add(initRightMovingCar());
 			rightCarCounter++;
 		}
 	}
 	
 	private void spawnCarsMovingLeft() {
-		
-		if (leftCarCounter < leftLimit) {
-			leftSpawnCounter++;
-		}
 		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingLeft) {
@@ -189,17 +177,38 @@ public class FinalProject extends Application {
 				frog.setStroke(Color.DARKRED);
 			}
 			
-			if (car.getX() <= 0) {
+			if (car.getX() <= -50) {
 				car.setX(pane_width);
-				car.setX(car.getX() - (Math.random() * carSpeed)); //SETS A NEW RANDOM SPEED
-			}	
+				car.setX(car.getX() - (Math.random() * carSpeed)); //REASSIGNS SPEED OF CAR RANDOMLY
+			}
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition && leftCarCounter < leftLimit && leftSpawnCounter > leftSpawnDelay) {
-			leftSpawnCounter = 0;
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && leftCarCounter < leftLimit) {
 			carsMovingLeft.add(initLeftMovingCar());
 			leftCarCounter++;
 		}	
+	}
+	
+	private void leftCollisionCheck() {
+		for (int i = 0; i < carsMovingLeft.size() - 1; i++) {
+			for (int b = i + 1; b < carsMovingLeft.size(); b++) {
+				if (carsMovingLeft.get(i).getBoundsInParent().intersects(carsMovingLeft.get(b).getBoundsInParent())) {
+					carsMovingLeft.get(b).setOpacity(0);
+					carsMovingLeft.remove(b);
+				}
+			}
+		}
+	}
+	
+	private void rightCollisionCheck() {
+		for (int i = 0; i < carsMovingRight.size() - 1; i++) {
+			for (int b = i + 1; b < carsMovingRight.size(); b++) {
+				if (carsMovingRight.get(i).getBoundsInParent().intersects(carsMovingRight.get(b).getBoundsInParent())) {
+					carsMovingRight.get(b).setOpacity(0);
+					carsMovingRight.remove(b);
+				}
+			}
+		}
 	}
 	
 	//TODO: Make method to change IMAGE, and DELETE CARS MOVING
@@ -269,6 +278,8 @@ public class FinalProject extends Application {
 			public void handle(long now) { //repeatedly initialize and animate cars
 				spawnCarsMovingLeft();
 				spawnCarsMovingRight();
+				leftCollisionCheck();
+				rightCollisionCheck();
 				generateFinish();
 				incrementCondition();
 			}
