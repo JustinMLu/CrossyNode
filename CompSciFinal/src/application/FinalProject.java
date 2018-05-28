@@ -60,6 +60,9 @@ public class FinalProject extends Application {
 	private int rightCarCounter = 0;
 	private int leftLimit = 8;
 	private int rightLimit = 8;
+	
+	private int rightSpawnCounter = 0, leftSpawnCounter = 0;
+	private int rightSpawnDelay = 60, leftSpawnDelay = 60;
 
 	
 	private Rectangle initFrog() {
@@ -141,6 +144,11 @@ public class FinalProject extends Application {
 	
 	
 	private void spawnCarsMovingRight() {
+		
+		if (rightCarCounter < rightLimit) {
+			rightSpawnCounter++;
+		}
+		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingRight) {
 			car.setX(car.getX() + (Math.random() * carSpeed));
@@ -158,14 +166,19 @@ public class FinalProject extends Application {
 			}	
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit) {
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && rightCarCounter < rightLimit && rightSpawnCounter > rightSpawnDelay) {
+			rightSpawnCounter = 0;
 			carsMovingRight.add(initRightMovingCar());
 			rightCarCounter++;
-			System.out.println("RightCar ArrayList: " + carsMovingRight.size());
 		}
 	}
 	
 	private void spawnCarsMovingLeft() {
+		
+		if (leftCarCounter < leftLimit) {
+			leftSpawnCounter++;
+		}
+		
 		//RANDOMLY SPAWNS CARS
 		for (Rectangle car : carsMovingLeft) {
 			car.setX(car.getX() - (Math.random() * carSpeed));
@@ -183,10 +196,10 @@ public class FinalProject extends Application {
 			}	
 		}
 		
-		if ((int) (Math.random() * 100) < carAmount && !stopCondition && leftCarCounter < leftLimit) {
+		if ((int) (Math.random() * 100) < carAmount && !stopCondition && leftCarCounter < leftLimit && leftSpawnCounter > leftSpawnDelay) {
+			leftSpawnCounter = 0;
 			carsMovingLeft.add(initLeftMovingCar());
 			leftCarCounter++;
-			System.out.println("LeftCar ArrayList: " + carsMovingLeft.size());
 		}	
 	}
 	
